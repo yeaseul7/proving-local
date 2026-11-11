@@ -113,7 +113,7 @@
     "next-env.d.ts": "1862ac4bbbc5192d4bf562161df66ea547ed3e67173100656ab606ae9797db2b",
     "next.config.ts": "af6c03d545cd62919be9be554fd6eb8cd077eb77c05c980c28217fbc4a7ff6f5",
     "package-lock.json": "f7bf8ef5714c8e9de1fa516b25b27e942dad03d0d7fdf0b402e172b0f636ee73",
-    "package.json": "74fbefc553d971a8e56d6ab93193aff07dcfc82243afdee769ca11ae90d2f822",
+    "package.json": "6d001cb7612a5c28665a12b719a5fe19cbe619e973f8a70909204f635ecddaac",
     "public/icon-192.png": "0a328d1452f1dcd07643125016294af590a34169e5d78f6d0e930e1c96ef1c96",
     "public/icon-512.png": "1313b0fe6742e86f8da9dcc5da05d910752978afdd6d0d5b338879fb5fe18f19",
     "public/notebook-binding.svg": "a2caab3fa3eabf33fdad7facc114a0e9a882e2165d6b0b6710fb582125e0bdaa",
@@ -122,8 +122,9 @@
     "public/proving-logo-dark.png": "adfea0646a580358f2957a4212128e3264b9d440d6388ad1efbc906ff787ccde",
     "public/proving-logo.png": "b0ee28421bcca5e6b770edbcaef4b4e9b561a544c90817b9c53f477f8958bbd6",
     "public/proving-symbol.svg": "6b71982fa4676feebf389eb63665eaf805231d77f3eef50d679041af4f0b30c5",
-    "README.md": "170ccdb97c6d6afe1503bf996a3241e25af6b358a55f4d03cf3f83b4e64d1b98",
+    "README.md": "d96ac4ed63e852d785e06a26ff352d4550b436055c18e8c201675eb64c995c21",
     "scripts/link-device.mjs": "435bd75bdd3793d3e1fad8149fca07829ec58427eb64fab5d1e665e6bb119a1e",
+    "scripts/prepare-dev.mjs": "7e8260eb7fb8aed15a2cff6878f2baf942ed96c6e0e124b15d4e100e0c1cb5a4",
     "tests/remote-store.test.mjs": "917427af85d312f532e4d7d9eeef9835befb384cf5344d5b8a6749688328d358",
     "tsconfig.json": "5bbd383310903ffd959c530d9d1ef444a9ced780a371d5d2b9d4df241a2acd67"
   }
