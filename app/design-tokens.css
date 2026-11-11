@@ -1,0 +1,108 @@
+:root {
+  /* Surfaces remain warm and quiet; sky blue is used for interaction. */
+  --color-canvas: #edf0f4;
+  --color-paper: #ffffff;
+  --color-surface: #fafafa;
+  --color-surface-inset: #f3f4f5;
+  --color-text: #2e3940;
+  --color-text-muted: #616f78;
+  --color-text-subtle: #73818b;
+  --color-accent: #3475de;
+  --color-accent-hover: #2560bc;
+  --color-accent-soft: #e7f0ff;
+  --color-accent-soft-hover: #d3e3ff;
+  --color-accent-border: #a9c8ff;
+  --color-focus: #5790f0;
+  --color-on-accent: #fff;
+  --color-border: #e1e2dd;
+  --color-border-strong: #cbd3d6;
+  --color-danger: #985b4c;
+  --color-overlay: #273a4755;
+  --color-code: #edf0ef;
+  --color-bookmark-1: #3d83f4;
+  --color-bookmark-2: #5c98f7;
+  --color-bookmark-3: #79aaff;
+  --color-egg-empty: #fafafa;
+  --color-egg-border: var(--color-accent-border);
+  --color-egg-surface: var(--color-accent-soft);
+  --color-egg-focus: var(--color-accent);
+  --color-on-bookmark: #173d78;
+  --color-note-text: #4b4e52;
+  --color-note-strong: #3f4246;
+  --color-note-marker: #696d72;
+
+  --font-body: var(--font-handwriting), 'Apple SD Gothic Neo', sans-serif;
+  --text-xs: 13px;
+  --text-sm: 15px;
+  --text-base: 18px;
+  --text-lg: 21px;
+  --text-title: 28px;
+  --leading-body: 1.85;
+  --leading-ui: 1.6;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --radius-paper: 2px;
+  --radius-control: 4px;
+  --radius-tab: 12px;
+
+  --ink: var(--color-text);
+  --muted: var(--color-text-muted);
+  --accent: var(--color-accent);
+  --line: var(--color-border);
+  --bg: var(--color-canvas);
+  --soft: var(--color-accent-soft);
+}
+
+:root {
+  --font-code: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --color-code-surface: #f2f5f8;
+  --color-code-header: #e6edf4;
+  --color-code-keyword: #6e4ca2;
+  --color-code-string: #2e7154;
+  --color-code-number: #ab562c;
+  --color-code-function: #245fa4;
+  --color-code-comment: #6c7d89;
+}
+
+/* Dark theme: data-theme is set before paint from the saved choice or the system setting. */
+:root[data-theme=dark] {
+  color-scheme: dark;
+  --color-canvas: #141414;
+  --color-paper: #1b1b1b;
+  --color-surface: #1e1e1e;
+  --color-surface-inset: #171717;
+  --color-text: #e5e5e5;
+  --color-text-muted: #aaa;
+  --color-text-subtle: #8d8d8d;
+  --color-accent: #6b9ef2;
+  --color-accent-hover: #91b8f7;
+  --color-accent-soft: #252525;
+  --color-accent-soft-hover: #303030;
+  --color-accent-border: #444;
+  --color-focus: #7aa8f4;
+  --color-on-accent: #fff;
+  --color-border: #303030;
+  --color-border-strong: #424242;
+  --color-danger: #d79a8a;
+  --color-overlay: #000000a0;
+  --color-code: #252525;
+  --color-bookmark-1: #3a6cc2;
+  --color-bookmark-2: #4579cf;
+  --color-bookmark-3: #5687d9;
+  --color-egg-empty: #1e1e1e;
+  --color-on-bookmark: #eef4ff;
+  --color-note-text: #c9ced4;
+  --color-note-strong: #dde1e6;
+  --color-note-marker: #9aa1a8;
+  --color-code-surface: #171717;
+  --color-code-header: #242424;
+  --color-code-keyword: #c3a2f0;
+  --color-code-string: #8fd1ae;
+  --color-code-number: #eaa27c;
+  --color-code-function: #8bbaf5;
+  --color-code-comment: #8492a0;
+}

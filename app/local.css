@@ -1,0 +1,7 @@
+/* Local app: retain study styles while keeping navigation visible on every viewport. */
+.local-app .sidebar { position:static; flex:0 0 240px; width:240px; gap:16px; overflow-wrap:anywhere; }
+.local-app .local-main { width:calc(100% - 240px); }
+.local-app article { border-top:1px solid var(--line); padding-block:24px; }
+@media(max-width:700px){.local-app{display:flex!important;flex-direction:column!important}.local-app .sidebar{flex-basis:auto;width:100%;border-bottom:1px solid var(--line)}.local-app .local-main{width:100%}}
+.local-app .sidebar { min-height:0!important; height:auto; }
+.local-app .study-paper { min-height:55vh; }

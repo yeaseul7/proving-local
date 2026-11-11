@@ -1,0 +1,39 @@
+{
+  "name": "proving-local",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.6"
+  },
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1 --port 3005",
+    "build": "next build --webpack",
+    "start": "next start --hostname 127.0.0.1 --port 3005",
+    "link": "node scripts/link-device.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node --conditions=react-server --experimental-strip-types --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "@next/env": "16.4.3",
+    "jose": "^6.2.15",
+    "js-tiktoken": "^1.0.21",
+    "katex": "^0.19.1",
+    "next": "^16.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-markdown": "^10.1.0",
+    "rehype-highlight": "^7.0.2",
+    "rehype-katex": "^7.0.1",
+    "remark-breaks": "^4.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.9.0"
+  }
+}
