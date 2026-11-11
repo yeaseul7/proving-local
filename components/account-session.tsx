@@ -3,6 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 
 export type BrowserSession = {
   account: string | null; name?: string; defaultName?: string; avatar?: string | null; provider?: string; canChat?: boolean;
+  local?: boolean; publicBaseUrl?: string;
   chatgptPlan?: { connected: boolean };
 };
 type SessionState = {

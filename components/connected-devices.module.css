@@ -1,0 +1,7 @@
+.actions { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
+.codeBox { display:grid; gap:12px; padding:20px; border:1px solid var(--color-border); border-radius:4px; background:var(--color-paper); }
+.codeBox p, .device p { margin:0; }
+.command { display:block; user-select:all; overflow-wrap:anywhere; font-size:16px; }
+.list { display:grid; gap:16px; list-style:none; margin:0; padding:0; }
+.device { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:16px; padding-block:16px; border-bottom:1px solid var(--color-border); overflow-wrap:anywhere; }
+.device > div { display:grid; gap:8px; min-width:0; }
