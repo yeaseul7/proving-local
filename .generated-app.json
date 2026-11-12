@@ -122,7 +122,7 @@
     "public/proving-logo-dark.png": "adfea0646a580358f2957a4212128e3264b9d440d6388ad1efbc906ff787ccde",
     "public/proving-logo.png": "b0ee28421bcca5e6b770edbcaef4b4e9b561a544c90817b9c53f477f8958bbd6",
     "public/proving-symbol.svg": "6b71982fa4676feebf389eb63665eaf805231d77f3eef50d679041af4f0b30c5",
-    "README.md": "fc5102dabcf648cd9e15dd596503b2395ee6a6ac66a155c2b11529d562c0420c",
+    "README.md": "f165ddba3bca12de659b61a69e317f4e4a0b26f2584b855b1c93ba33e756abea",
     "scripts/link-device.mjs": "435bd75bdd3793d3e1fad8149fca07829ec58427eb64fab5d1e665e6bb119a1e",
     "scripts/prepare-dev.mjs": "7e8260eb7fb8aed15a2cff6878f2baf942ed96c6e0e124b15d4e100e0c1cb5a4",
     "tests/remote-store.test.mjs": "917427af85d312f532e4d7d9eeef9835befb384cf5344d5b8a6749688328d358",
