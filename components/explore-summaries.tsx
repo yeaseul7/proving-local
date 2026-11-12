@@ -1,4 +1,5 @@
 'use client';
+import { summaryPath } from '@/lib/summary-path';
 import Link from 'next/link';
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { getSummaryEngagement, getServerSummaryEngagement, subscribeSummaryEngagement } from '@/lib/summary-engagement-client';
@@ -71,7 +72,7 @@ export function ExploreSummaries() {
     {loading ? <p role="status">{en ? 'Loading study notes…' : '공부 기록을 불러오는 중'}</p>
       : error ? <p role="alert">{en ? 'Could not load study notes.' : '공부 기록을 불러오지 못했습니다.'} <button className="text-button" onClick={() => setRetry(value => value + 1)}>{en ? 'Retry' : '다시 시도'}</button></p>
       : filtered.length ? <div className="explore-profiles">{filtered.map(record =>
-        <Link key={record.id} href={`/summaries/${record.id}`} className="explore-profile-card explore-summary-card">
+        <Link key={record.id} href={summaryPath(record)} className="explore-profile-card explore-summary-card">
           <h3>{record.title}</h3>
           <p className="explore-summary-preview">{introDescription(record.content, 120)}</p>
           <div className="explore-summary-meta">

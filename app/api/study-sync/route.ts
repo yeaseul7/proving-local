@@ -1,3 +1,5 @@
+import { getPublicSummary } from '@/lib/public-summary';
+import { summaryPath } from '@/lib/summary-path';
 import { syncUrl } from '@/lib/local-config.mjs';
 import { siteUrl } from '@/lib/site';
 import { runtimeMode } from '@/lib/runtime-mode';
@@ -34,8 +36,9 @@ async function handle(request: Request, write: boolean) {
 
     const result = await getStudyStore().apply(identity, body);
     const base = runtimeMode().store === 'remote' ? (process.env.PROVING_SYNC_URL || syncUrl) : siteUrl;
+    const published='publicId' in result&&result.publicId?await getPublicSummary(result.publicId):null;
     return json({ ...result, ...('publicId' in result ? {
-      publicUrl: result.publicId ? new URL(`/summaries/${result.publicId}`, base).href : null,
+      publicUrl: result.publicId ? new URL(summaryPath({id:result.publicId,title:published?.title??'study-note'}), base).href : null,
     } : {}) });
   } catch (error) {
     if (error instanceof StudySyncError) return json({ error: error.message }, error.status);

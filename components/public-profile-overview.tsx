@@ -1,4 +1,5 @@
 'use client';
+import { summaryPath } from '@/lib/summary-path';
 import Link from 'next/link';
 import { useTransition, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
@@ -46,7 +47,7 @@ export function PublicProfileOverview({ profile, today }: { profile: PublicProfi
     <EggGarden counts={profile.counts} today={today} selected={selectedDay} onSelect={day => navigate(1, day)} />
     <section className="notes-section" aria-busy={pending} aria-label={en ? 'Public study notes' : '공개 공부 요약'}>
       <div className="section-title"><h2>{selectedDay ? `${selectedDay} ${en ? 'study notes' : '공부 노트'}` : en ? 'Public study notes' : '공개 공부 요약'}</h2></div>
-      {records.length ? <div className="notes-ledger public-ledger"><table><thead><tr><th>{en ? 'Date' : '날짜'}</th><th>{en ? 'Title' : '제목'}</th><th>{en ? 'Reactions' : '반응'}</th></tr></thead><tbody>{records.map(record => <tr key={record.id}><td><time dateTime={record.date}>{record.date.replaceAll('-', '.')}</time></td><td className="ledger-title"><Link href={`/summaries/${record.id}`}>{record.title}</Link></td><td className="public-ledger-stats">
+      {records.length ? <div className="notes-ledger public-ledger"><table><thead><tr><th>{en ? 'Date' : '날짜'}</th><th>{en ? 'Title' : '제목'}</th><th>{en ? 'Reactions' : '반응'}</th></tr></thead><tbody>{records.map(record => <tr key={record.id}><td><time dateTime={record.date}>{record.date.replaceAll('-', '.')}</time></td><td className="ledger-title"><Link href={summaryPath(record)}>{record.title}</Link></td><td className="public-ledger-stats">
         <span aria-label={en ? `${record.views} views` : `조회 ${record.views}`}><ViewIcon size={14}/>{record.views}</span>
         <span aria-label={en ? `${record.likes} likes` : `좋아요 ${record.likes}`}><ReactionIcon reaction="like" size={14}/>{record.likes}</span>
         <span aria-label={en ? `${record.disappointed} could be better` : `아쉬워요 ${record.disappointed}`}><ReactionIcon reaction="disappointed" size={14}/>{record.disappointed}</span>

@@ -1,3 +1,4 @@
+import { summaryPath } from '@/lib/summary-path';
 import type { Notebook } from './notebooks';
 import type { StudyNote } from './study';
 
@@ -13,7 +14,7 @@ export async function loadStudy(account: string, signal?: AbortSignal): Promise<
   const data = await response.json();
   if (data.account !== account) throw new Error('계정이 변경되었습니다. 다시 로그인해주세요.');
   return { ...data, records: data.records.map((record: StoredStudyNote) => ({
-    ...record, publicUrl: record.publicId ? new URL(`/summaries/${record.publicId}`, data.publicBaseUrl).href : null,
+    ...record, publicUrl: record.publicId ? new URL(summaryPath({id:record.publicId,title:record.title}), data.publicBaseUrl).href : null,
   })) };
 }
 
