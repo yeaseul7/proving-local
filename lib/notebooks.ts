@@ -1,15 +1,16 @@
+import { validLearningState, type LearningState } from './study-learning.ts';
 import { validStudyTurnLimit } from './study-flow.ts';
 import { validMemory, type ChatMemory } from './chat-memory.ts';
 import { validStoredMessages, type ChatMessage } from './chat.ts';
 export const MAX_NOTEBOOKS=3;
-export type Notebook={id:string;title:string;date:string;messages:ChatMessage[];draft?:string;summary?:string;recorded?:boolean;updatedAt?:string;resumed?:ResumedNote;memory?:ChatMemory;turnLimit?:number};
+export type Notebook={id:string;title:string;date:string;messages:ChatMessage[];draft?:string;summary?:string;recorded?:boolean;updatedAt?:string;resumed?:ResumedNote;memory?:ChatMemory;learning?:LearningState;turnLimit?:number};
 // 이어하기에서 앞쪽 count개 메시지는 복습을 시작하기 위한 맥락이다.
 export type ResumedNote={count:number;summary:string;sourceId?:string;sourceMessages?:ChatMessage[]};
 export type NotebookWorkspace={activeId:string;notebooks:Notebook[]};
 export function isNotebook(value:unknown):value is Notebook{
   if(!value||typeof value!=='object')return false;
   const n=value as Record<string,unknown>;
-  return typeof n.id==='string'&&n.id.length>0&&typeof n.title==='string'&&n.title.length<=100&&typeof n.date==='string'&&validStoredMessages(n.messages)&&(n.draft===undefined||typeof n.draft==='string')&&(n.summary===undefined||typeof n.summary==='string')&&(n.recorded===undefined||typeof n.recorded==='boolean')&&(n.memory===undefined||validMemory(n.memory,(n.messages as ChatMessage[]).length))&&(n.resumed===undefined||isResumed(n.resumed,(n.messages as ChatMessage[]).length))&&(n.turnLimit===undefined||validStudyTurnLimit(n.turnLimit));
+  return typeof n.id==='string'&&n.id.length>0&&typeof n.title==='string'&&n.title.length<=100&&typeof n.date==='string'&&validStoredMessages(n.messages)&&(n.draft===undefined||typeof n.draft==='string')&&(n.summary===undefined||typeof n.summary==='string')&&(n.recorded===undefined||typeof n.recorded==='boolean')&&(n.learning===undefined||validLearningState(n.learning))&&(n.memory===undefined||validMemory(n.memory,(n.messages as ChatMessage[]).length))&&(n.resumed===undefined||isResumed(n.resumed,(n.messages as ChatMessage[]).length))&&(n.turnLimit===undefined||validStudyTurnLimit(n.turnLimit));
 }
 function isResumed(value:unknown,length:number):value is ResumedNote{
   if(!value||typeof value!=='object')return false;

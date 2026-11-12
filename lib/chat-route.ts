@@ -1,3 +1,4 @@
+import { validAssessment, validLearningState, advanceLearning } from '@/lib/study-learning';
 import { parseStudyFlow } from '@/lib/study-flow';
 import { errorResponse } from '@/lib/siwc-errors';
 import { getAuth, requireIdentity } from '@/lib/auth';
@@ -34,7 +35,7 @@ export async function POST(request:Request){
       if (!validStoredMessages(body.messages) || !body.messages.length) return Response.json({error:'기록할 대화를 확인해주세요.'},{status:400});
       messages = apiMessages(body.messages);
     } else {
-      try { studyFlow = parseStudyFlow(body.studyFlow); messages = prepareConversation(body); }
+      try { if(body.learning!==undefined&&!validLearningState(body.learning))throw new Error('학습 상태를 확인해주세요.'); studyFlow = parseStudyFlow(body.studyFlow); messages = prepareConversation(body); }
       catch (error) { return Response.json({ error: (error as Error).message, code: 'invalid_question' }, { status: 400, headers: { 'Cache-Control': 'no-store' } }); }
     }
     let respond;
@@ -59,9 +60,12 @@ export async function POST(request:Request){
       return Response.json({ text, account: identity.accountKey }, { headers: { 'Cache-Control': 'no-store' } });
     }
     const rawReply = await respond({ model, messages, timeoutMs:120_000,
-      instructions:conversationInstructions(language, body.generateTitle===true, studyFlow), json:true, maxOutputTokens:4096 });
+      instructions:conversationInstructions(language, body.generateTitle===true, studyFlow, body.learning), json:true, maxOutputTokens:4096 });
     const reply = parseStudyReply(rawReply, body.generateTitle===true);
-    return Response.json({ ...reply, memory: boundedMemory(reply.memory), account: identity.accountKey }, { headers: { 'Cache-Control': 'no-store' } });
+    const assessment = JSON.parse(rawReply.trim().replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```$/, '')).assessment;
+    if(!validAssessment(assessment))throw new Error('학습 평가 형식을 확인하지 못했습니다. 다시 답변을 요청해주세요.');
+    const learning=advanceLearning(body.learning,assessment);
+    return Response.json({ ...reply, learning, memory: boundedMemory(reply.memory), account: identity.accountKey }, { headers: { 'Cache-Control': 'no-store' } });
   }catch(error){
     if(requestedModel)console.error('chat failed',{model:requestedModel});
     return errorResponse(error);

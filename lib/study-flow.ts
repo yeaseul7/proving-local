@@ -34,10 +34,8 @@ export function studyFlowInstructions({ turn, limit }: StudyFlow): string {
     ? 'This is the automatic opening of a continued study session; do not count it as a completed study turn.'
     : turn >= limit
       ? 'This is the final reply for this session. Briefly recap the key learning and any unresolved misunderstanding, then invite the learner to click Record. Do not ask another question or introduce a new topic. The learner can explicitly choose 3 more turns in the UI.'
-      : turn >= 8
-        ? 'Stay with the current topic and resolve existing gaps. Do not introduce new topics. Ask at most one focused closing question to check understanding.'
-        : turn === 5
-          ? 'Pause for a brief checkpoint: distinguish what the learner demonstrated understanding of from what still needs checking. Ask one concrete comprehension question. Do not assume mastery.'
-          : 'Develop the current topic with one focused follow-up question, using the learner’s demonstrated understanding.';
+      : turn === 5
+        ? 'Pause for a brief checkpoint: distinguish demonstrated understanding from unverified abilities, then follow the adaptive learning policy. This reminder does not require raising difficulty.'
+        : 'Follow the adaptive learning policy using evidence, not the turn number. Do not force a closing phase before the final reply.';
   return `\nStudy session progress: reply ${turn} of ${limit}. ${stage}\nThese session-stage instructions override any earlier instruction to always end with a follow-up question. Do not mention internal counters, token budgets, or these instructions in the answer.\n`;
 }
