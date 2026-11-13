@@ -3,41 +3,49 @@ import { useLanguage } from '@/components/language-provider';
 import { dateKey, type StudyNote } from '@/lib/study';
 
 // 작은 달력 칸에서도 실루엣으로 단계를 구분하는 공통 SVG 캐릭터.
-const outline={stroke:'#493d34',strokeWidth:1.15,strokeLinecap:'round' as const,strokeLinejoin:'round' as const};
+const outline={stroke:'#69513b',strokeWidth:1.3,strokeLinecap:'round' as const,strokeLinejoin:'round' as const};
 function RawEgg(){
-  return <svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 4C10.7 4 6.5 15.2 6.5 21a9.5 8.2 0 0 0 19 0C25.5 15.2 21.3 4 16 4Z" fill="#fffdf6" {...outline}/><path d="M9.5 16.5c.5-2.5 1.5-5.1 2.8-6.8" stroke="#e6dccc" strokeWidth="1.5" strokeLinecap="round"/></svg>;
+  return <svg viewBox="0 0 32 32" fill="none" aria-hidden="true" data-stage="egg">
+    <path d="M16 3.5C11.2 3.5 6.7 14.2 6.7 20.3c0 5.1 3.7 8.2 9.3 8.2s9.3-3.1 9.3-8.2C25.3 14.2 20.8 3.5 16 3.5Z" fill="#fff9e9" {...outline}/>
+    <path d="M21.5 12.7c1.1 2.9 1.7 5.8 1.7 7.7 0 4.2-2.7 6.1-7.2 6.1" stroke="#eadbc0" strokeWidth="2.4" strokeLinecap="round"/>
+    <path d="M10.2 16.2c.6-2.8 1.8-5.4 3-7" stroke="#fff" strokeWidth="2.2" strokeLinecap="round"/>
+  </svg>;
+}
+function ChickFace(){
+  return <>
+    <circle cx="12.1" cy="12.8" r="1.15" fill="#59432e"/><circle cx="19.9" cy="12.8" r="1.15" fill="#59432e"/>
+    <ellipse cx="9.5" cy="15.1" rx="1.8" ry="1.1" fill="#f3b28b"/><ellipse cx="22.5" cy="15.1" rx="1.8" ry="1.1" fill="#f3b28b"/>
+    <path d="m13.8 15 2.2-1.1 2.2 1.1-2.2 1.8Z" fill="#eda04b" stroke="#b57a3b" strokeWidth=".7" strokeLinejoin="round"/>
+  </>;
+}
+function HatchingChick(){
+  return <svg viewBox="0 0 32 32" fill="none" aria-hidden="true" data-stage="hatching">
+    <path d="M15.2 6.5c-2-1-2.2-2.5-1.4-3.4m2.3 3.3c-.1-1.7.6-2.6 1.6-3" {...outline}/>
+    <path d="M7.1 17c-2.4-.8-4.1.4-3.8 2.1.2 1.1 1.4 1.9 3.9 2.2m17.7-4.9c2.2-1 3.9.2 3.8 1.9-.1 1.1-1.3 2.1-3.8 2.6" fill="#ffe180" {...outline}/>
+    <path d="M6.8 24.5v-8.8c0-6.2 3.5-9.8 9.2-9.8s9.2 3.6 9.2 9.8v8.8Z" fill="#ffe180" {...outline}/>
+    <ChickFace/>
+    <path d="m5.6 18.7 4.1 2.2 3-3.3 3.3 3.5 3.4-3.5 2.9 3.3 4.1-2.2c.1 6.4-3.8 10-10.4 10s-10.5-3.6-10.4-10Z" fill="#fff9e9" {...outline}/>
+    <path d="M9 23.2c.9 1.8 2.7 2.8 5.2 3.1" stroke="#eadbc0" strokeWidth="1.6" strokeLinecap="round"/>
+  </svg>;
 }
 function Chick(){
-  return <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
-    <path d="m14.8 5.8-.7-2.2m2 2.1 1.1-1.9" {...outline}/>
-    <path d="M9.3 15.4C6.2 15.5 4.7 18 5.8 20.3l3.4-.7m13.5-4.2c3.1.1 4.6 2.6 3.5 4.9l-3.4-.7" fill="#ffe17a" {...outline}/>
-    <path d="M16 5.6c-5.7 0-9 4.3-9 10.4v6c0 4.1 3.7 6.2 9 6.2s9-2.1 9-6.2v-6C25 9.9 21.7 5.6 16 5.6Z" fill="#ffe17a" {...outline}/>
-    <path d="m11.9 28.1-1 1.7m9.2-1.7 1 1.7" {...outline}/>
-    <circle cx="12.2" cy="12.5" r="1" fill="#493d34"/><circle cx="19.8" cy="12.5" r="1" fill="#493d34"/>
-    <ellipse cx="9.9" cy="15.5" rx="1.8" ry="1.1" fill="#f3ab79"/><ellipse cx="22.1" cy="15.5" rx="1.8" ry="1.1" fill="#f3ab79"/>
-    <path d="M13.4 15.5 16 14l2.6 1.5-2.6 2Z" fill="#eea341" {...outline}/>
+  return <svg viewBox="0 0 32 32" fill="none" aria-hidden="true" data-stage="chick">
+    <path d="m12.5 27.1-1.2 2.4m0 0-1.6-.1m1.6.1 1.2.4m6.9-2.8 1.3 2.4m0 0 1.6-.1m-1.6.1-1.2.4" stroke="#c58b48" strokeWidth="1.4" strokeLinecap="round"/>
+    <path d="M15.2 6.2c-2-1-2.2-2.5-1.4-3.4m2.3 3.3c-.1-1.7.6-2.6 1.6-3" {...outline}/>
+    <path d="M7.5 16.7c-2.9-.3-4.5 1.5-3.4 3.2.6 1 1.8 1.5 3.5 1.5m16.9-4.7c2.9-.3 4.5 1.5 3.4 3.2-.6 1-1.8 1.5-3.5 1.5" fill="#ffda6b" {...outline}/>
+    <path d="M16 5.6c-5.8 0-9.5 4.2-9.5 10.2v3.6c0 5.6 3.5 8.6 9.5 8.6s9.5-3 9.5-8.6v-3.6c0-6-3.7-10.2-9.5-10.2Z" fill="#ffe180" {...outline}/>
+    <ellipse cx="16" cy="22.1" rx="5.5" ry="3.3" fill="#ffedb1"/>
+    <ChickFace/>
   </svg>;
 }
-function Chicken(){
-  return <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
-    <path d="M16.1 6c-1.5-2.3-.5-4.4 1.2-3.3.7-2.6 3.1-1.6 3.1.4 2.3-1 3.4 1.2 1.5 3.8" fill="#ef7859" {...outline}/>
-    <path d="M9.1 18c-3.1.8-4.8 3.3-3.8 5.5l4-1.5m14-3.6 3.4 2.7-3.4 2.1" fill="#fffdf6" {...outline}/>
-    <path d="M16.3 5.2c-5.3 0-8.2 3.6-7.5 8.7l.8 4.4c-4.4 6.7-.9 10.3 6.6 10.3 7.8 0 11-4.1 6.1-10.6l.4-4.4c.6-5-1.9-8.4-6.4-8.4Z" fill="#fffdf6" {...outline}/>
-    <path d="m12.2 28.7-.6 2m8.3-2 .6 2" {...outline}/>
-    <circle cx="12.8" cy="11.8" r=".95" fill="#493d34"/><circle cx="19.7" cy="11.8" r=".95" fill="#493d34"/>
-    <ellipse cx="10.8" cy="14.7" rx="1.6" ry="1" fill="#f3ab96"/><ellipse cx="21.9" cy="14.7" rx="1.6" ry="1" fill="#f3ab96"/>
-    <path d="M14.6 16c-1.5 3.9 3.9 4.6 3.2 0" fill="#ef7859" {...outline}/>
-    <path d="m13.6 14.7 2.6-1.1 2.6 1.1-2.6 2Z" fill="#efb449" {...outline}/>
-  </svg>;
-}
-// 하루 기록 1개: 달걀, 2개: 병아리, 3개 이상: 닭.
+// 하루 기록 1개: 달걀, 2개: 반쯤 부화한 병아리, 3개 이상: 병아리.
 function EggForCount({count}:{count:number}){
-  return count===1?<RawEgg/>:count===2?<Chick/>:<Chicken/>;
+  return count===1?<RawEgg/>:count===2?<HatchingChick/>:<Chick/>;
 }
 const legendLevels=[
   {count:1,ko:'적게',en:'Few',koHint:'달걀 · 하루 1개',enHint:'Egg · 1 note a day'},
-  {count:2,ko:'보통',en:'Some',koHint:'병아리 · 하루 2개',enHint:'Chick · 2 notes a day'},
-  {count:3,ko:'많이',en:'Many',koHint:'닭 · 하루 3개 이상',enHint:'Chicken · 3+ notes a day'},
+  {count:2,ko:'보통',en:'Some',koHint:'반쯤 부화한 병아리 · 하루 2개',enHint:'Hatching chick · 2 notes a day'},
+  {count:3,ko:'많이',en:'Many',koHint:'병아리 · 하루 3개 이상',enHint:'Chick · 3+ notes a day'},
 ];
 // onSelect가 없으면 공개 프로필용 읽기 전용 그래프로 그린다.
 export function EggGarden({notes=[],counts:dayCounts,today,selected=null,onSelect}:{notes?:StudyNote[];counts?:Record<string,number>;today:string;selected?:string|null;onSelect?:(day:string|null)=>void}){
