@@ -7,7 +7,7 @@ export function clearAccountBrowserData(accounts: string[], storage: BrowserStor
   for (let index = 0; index < storage.length; index++) {
     const key = storage.key(index);
     if (!key) continue;
-    if (accounts.some(account => ['study-notebooks-', 'study-chat-', 'study-plan-notice-', 'study-leaf-notes-v1-', 'proving-profile-'].some(prefix => key === `${prefix}${account}`) || key.startsWith(`study-notebooks-backup-${account}-`))) {
+    if (accounts.some(account => ['study-notebooks-', 'study-chat-', 'study-plan-notice-', 'study-leaf-notes-v1-', 'proving-profile-', 'proving-exam-v1:', 'proving-exam-selection:'].some(prefix => key === `${prefix}${account}`) || key.startsWith(`study-notebooks-backup-${account}-`))) {
       // Reactions use notebook IDs rather than account IDs. Remove reactions
       // referenced by this account's saved notes before removing those notes.
       try {

@@ -1,3 +1,4 @@
+import { validExamSources, examInstructions, parseExam } from '@/lib/study-exam';
 import { validAssessment, validLearningState, advanceLearning } from '@/lib/study-learning';
 import { parseStudyFlow } from '@/lib/study-flow';
 import { errorResponse } from '@/lib/siwc-errors';
@@ -27,11 +28,15 @@ export async function POST(request:Request){
     if (!body || typeof body !== 'object' || Array.isArray(body)) return Response.json({error:'요청 형식을 확인해주세요.'},{status:400});
     if(body.account!==identity.accountKey)return Response.json({error:'로그인 계정이 변경되었습니다. 새로고침해주세요.'},{status:409});
     if(body.summarize!==true&&body.continuation===undefined&&raw.length>150000)return Response.json({error:'대화가 너무 깁니다. 새 공부를 시작해주세요.'},{status:413});
-    const summarizing = body.summarize === true;
+    const examining = body.exam === true;
+    if(examining&&!validExamSources(body.sources))return Response.json({error:'기록을 1~3개 선택해주세요. 각 기록은 30,000자 이하여야 합니다.'},{status:400});
+    const summarizing = !examining && body.summarize === true;
     if(typeof body.model!=='string'||body.model.length>120)return Response.json({error:'모델을 확인해주세요.'},{status:400});
     let messages;
     let studyFlow;
-    if (summarizing) {
+    if (examining) {
+      messages = [{role:'user' as const,content:JSON.stringify(body.sources)}];
+    } else if (summarizing) {
       if (!validStoredMessages(body.messages) || !body.messages.length) return Response.json({error:'기록할 대화를 확인해주세요.'},{status:400});
       messages = apiMessages(body.messages);
     } else {
@@ -55,6 +60,10 @@ export async function POST(request:Request){
     if(busy.has(identity.accountKey))return Response.json({error:'앞선 응답이 완료된 뒤 다시 보내주세요.'},{status:429});
     lock=identity.accountKey;busy.add(identity.accountKey);
     const language = body.language === 'en' ? 'en' : 'ko';
+    if(examining){
+      const rawExam=await respond({model,messages,instructions:examInstructions(language),json:true,maxOutputTokens:6500,timeoutMs:120_000});
+      return Response.json({exam:parseExam(rawExam,body.sources.map((s:{id:string})=>s.id)),account:identity.accountKey},{headers:{'Cache-Control':'no-store'}});
+    }
     if (summarizing) {
       const text = await summarizeTranscript(messages, studyInstructions(language, true), options => respond({ ...options, model, timeoutMs: 120_000 }));
       return Response.json({ text, account: identity.accountKey }, { headers: { 'Cache-Control': 'no-store' } });
