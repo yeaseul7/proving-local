@@ -45,7 +45,7 @@
     "components/api-key-settings.tsx": "0f3192e6e2931521a97586797ddac1594bfb5d036b8e6dcdebed4bbe3557b891",
     "components/connected-devices.module.css": "46ac53c21640d01ddc0818be6ba5aa327c6feddf2cecd6f410dac27eb18b8cd4",
     "components/connected-devices.tsx": "01302a5b4a541c8f643a4418a3c7c88b7b38820b2e597931e873b5cee3d459c3",
-    "components/egg-garden.tsx": "9a60d1566529dc1329ff1b76fb51f0a0665cc056fbaf041569dca587564e21b2",
+    "components/egg-garden.tsx": "5cc670388e15cafeeab2a25eba1d4157d68600148bed9f6d7376a6100a3b7708",
     "components/empty-explore.tsx": "474eac190a85fecb3dcb4b7f0d6559f70a2cb96ae51524a41e907f220d28004f",
     "components/empty-notebook.tsx": "00b7e01e5faf358ecbbfd855e8d8ea490ec3728de6f04a2c8f0155d059d6ac0d",
     "components/explore-records.tsx": "c78f8dc882fa85be5ba5ec9b2ececac4e0c1b5d2118f68181c7195283a8d2ebf",
