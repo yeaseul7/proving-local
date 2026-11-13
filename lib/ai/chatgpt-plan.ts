@@ -29,12 +29,12 @@ export const chatgptPlanAi: AiProvider = {
       : [];
   },
 
-  async respond({ model, messages, instructions, timeoutMs, json }) {
+  async respond({ model, messages, instructions, timeoutMs, json, maxOutputTokens, reasoningEffort }) {
     const session = await authorizedSession();
     const response = await fetch(`${API}/responses`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${session.access}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, input: responseInput(messages, json), ...(json ? { text: { format: { type: 'json_object' } } } : {}), store: false, stream: true, instructions }),
+      body: JSON.stringify({ model, input: responseInput(messages, json), ...(json ? { text: { format: { type: 'json_object' } } } : {}), ...(maxOutputTokens ? { max_output_tokens: maxOutputTokens } : {}), ...(reasoningEffort ? { reasoning: { effort: reasoningEffort } } : {}), store: false, stream: true, instructions }),
       signal: AbortSignal.timeout(timeoutMs),
     });
     if (!response.ok) throw await upstreamError(response);

@@ -1,38 +1,30 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect,useRef,useState } from 'react';
 import { useAccountSession } from './account-session';
 import { useLanguage } from './language-provider';
-import { StudyMarkdown } from './study-markdown';
-import { examScore, validExam, type StudyExam } from '@/lib/study-exam';
 import type { StudyNote } from '@/lib/study';
-type Attempt={exam:StudyExam;answers:(number|null)[];memos:string[];submitted:boolean};
-function validAttempt(v:unknown):v is Attempt{
- if(!v||typeof v!=='object')return false;
- const a=v as Attempt;
- return validExam(a.exam)&&Array.isArray(a.answers)&&a.answers.length===5&&a.answers.every(n=>n===null||Number.isInteger(n)&&n>=0&&n<4)&&Array.isArray(a.memos)&&a.memos.length===5&&a.memos.every(m=>typeof m==='string'&&m.length<=5000)&&typeof a.submitted==='boolean'&&(!a.submitted||a.answers.every(n=>n!==null));
-}
-export function StudyExamButton({notes,account}:{notes:StudyNote[];account:string}){
- const {language}=useLanguage();const dialog=useRef<HTMLDialogElement>(null);const [open,setOpen]=useState(false);
- return <><button type="button" className="button primary" disabled={!notes.length||notes.length>3} onClick={()=>{setOpen(true);dialog.current?.showModal();}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 3H5v18h14V8zM14 3v5h5M8 12h8M8 16h5"/></svg>{language==='en'?'Generate exam':'시험지 생성'}</button><dialog ref={dialog} className="editor-dialog exam-dialog" onClose={()=>setOpen(false)}><div className="dialog-heading"><h2>{language==='en'?'Practice exam':'객관식 시험지'}</h2><button type="button" className="close-button" aria-label={language==='en'?'Close':'닫기'} onClick={()=>dialog.current?.close()}>×</button></div>{open&&<ExamEditor key={account} notes={notes} account={account}/>}</dialog></>;
-}
-function ExamEditor({notes,account}:{notes:StudyNote[];account:string}){
+import { EXAM_MODEL,validExam } from '@/lib/study-exam';
+export function StudyExamButton({notes,account,onCreated}:{notes:StudyNote[];account:string;onCreated?:(id:string)=>void}){
  const {language}=useLanguage();const en=language==='en';const {getSession}=useAccountSession();
- const selected=notes.map(n=>n.id);const [models,setModels]=useState<{id:string;name:string}[]>([]);const [model,setModel]=useState('');
- const [attempt,setAttempt]=useState<Attempt|null>(null);const [loaded,setLoaded]=useState(false);const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [storageError,setStorageError]=useState(false);
- const storageKey=`proving-exam-v1:${account}`;
- useEffect(()=>{try{const raw=localStorage.getItem(storageKey);if(raw){const saved:unknown=JSON.parse(raw);if(validAttempt(saved))setAttempt(saved);else setStorageError(true);}}catch{setStorageError(true);}setLoaded(true);},[storageKey]);
- useEffect(()=>{if(!loaded||!attempt)return;try{localStorage.setItem(storageKey,JSON.stringify(attempt));setStorageError(false);}catch{setStorageError(true);}},[attempt,loaded,storageKey]);
- useEffect(()=>{let active=true;void(async()=>{try{const session=await getSession();if(session.account!==account)return;const urls=['/api/models',...(session.chatgptPlan?.connected?['/api/models?provider=chatgpt']:[])];const results=await Promise.allSettled(urls.map(async url=>{const r=await fetch(url,{cache:'no-store',signal:AbortSignal.timeout(15000)});const d=await r.json();if(!r.ok)throw new Error(d.error);return Array.isArray(d.models)?d.models.filter((m:{id:string;name:string})=>typeof m.id==='string'&&typeof m.name==='string'):[];}));if(!active)return;const list=results.flatMap(r=>r.status==='fulfilled'?r.value:[]);setModels(list);setModel(list[0]?.id??'');if(!list.length)setError(en?'Connect an AI provider in Study to generate an exam.':'공부 화면에서 API 키 또는 ChatGPT 플랜을 연결한 뒤 시험지를 생성해주세요.');}catch{if(active)setError(en?'Could not load models.':'모델을 불러오지 못했습니다. 시험지를 다시 열어주세요.');}})();return()=>{active=false;};},[account,getSession,en]);
- const controller=useRef<AbortController|null>(null);useEffect(()=>()=>controller.current?.abort(),[]);
+ const dialog=useRef<HTMLDialogElement>(null),controller=useRef<AbortController|null>(null);
+ const [busy,setBusy]=useState(false),[error,setError]=useState('');
+ useEffect(()=>()=>controller.current?.abort(),[]);
  async function generate(){
-  if(busy||!selected.length||selected.length>3||!models.some(m=>m.id===model))return;
+  if(busy||notes.length<1||notes.length>3)return;
   setBusy(true);setError('');const abort=new AbortController();controller.current=abort;
-  const timeout=setTimeout(()=>abort.abort(),150000);
-  try{const sources=notes.filter(n=>selected.includes(n.id)).map(({id,title,content})=>({id,title,content}));const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({exam:true,sources,account,model,language}),signal:abort.signal});const d=await r.json();if(!r.ok)throw new Error(d.error||'시험지를 생성하지 못했습니다.');if(d.account!==account||!validExam(d.exam,sources.map(s=>s.id)))throw new Error('시험지 응답을 확인하지 못했습니다.');const session=await getSession(true);if(session.account!==account)throw new Error('계정이 변경되었습니다.');setAttempt({exam:d.exam,answers:Array(5).fill(null),memos:Array(5).fill(''),submitted:false});}catch(e){if(!abort.signal.aborted)setError(e instanceof Error?e.message:'시험지를 생성하지 못했습니다.');else setError(en?'Generation stopped. Try again.':'생성이 중단되었습니다. 다시 시도해주세요.');}finally{clearTimeout(timeout);setBusy(false);}
+  try{
+   const session=await getSession();if(session.account!==account)throw new Error('계정이 변경되었습니다. 다시 로그인해주세요.');
+   const plan=!session.canChat&&session.chatgptPlan?.connected;
+   const response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({exam:true,examId:crypto.randomUUID(),sources:notes.map(({id,title,content})=>({id,title,content})),account,model:plan?`plan:${EXAM_MODEL}`:EXAM_MODEL,language}),signal:AbortSignal.any([abort.signal,AbortSignal.timeout(150000)])});
+   const data=await response.json();if(!response.ok)throw new Error(data.error||'시험지를 생성하지 못했습니다.');
+   if(data.account!==account||!data.attempt?.id||!validExam(data.attempt.exam,notes.map(note=>note.id)))throw new Error('저장된 시험지를 확인하지 못했습니다.');
+   const current=await getSession(true);if(current.account!==account)throw new Error('계정이 변경되었습니다.');
+   dialog.current?.close();onCreated?.(data.attempt.id);
+  }catch(error){if(!abort.signal.aborted)setError(error instanceof Error?error.message:'시험지를 생성하지 못했습니다.');}
+  finally{setBusy(false);}
  }
- return <div className="exam-editor"><p className="muted">{en?'Five questions prioritize areas to revisit in the selected notes. Your latest exam and notes are saved in this browser.':'선택한 기록에서 이해가 부족한 부분을 우선해 5문항을 출제합니다. 최근 시험지와 메모는 이 브라우저에 저장됩니다.'}</p><fieldset disabled={busy}><legend>{en?'Source notes':'출제할 기록'} ({selected.length}/3)</legend><ul className="exam-source-titles">{notes.map(n=><li key={n.id}>{n.title}</li>)}</ul><label className="exam-model">{en?'Exam model':'출제 모델'}<select value={model} onChange={e=>setModel(e.target.value)}>{models.map(m=><option key={m.id} value={m.id}>{m.id.startsWith('plan:')?'ChatGPT · ':''}{m.name}</option>)}</select></label><button type="button" className="button primary" disabled={!loaded||!selected.length||!model} onClick={()=>void generate()}>{busy?(en?'Generating…':'출제 중…'):attempt?(en?'Replace with a new exam':'새 시험지로 교체'):(en?'Generate exam':'시험지 만들기')}</button>{attempt&&<small className="muted">{en?'Generating replaces the saved exam.':'새로 생성하면 저장된 시험지를 교체합니다.'}</small>}</fieldset>{error&&<p role="alert">{error}</p>}{storageError&&<p role="alert">{en?'Could not restore or save the exam in this browser.':'브라우저에서 시험지를 복원하거나 저장하지 못했습니다.'}</p>}{attempt&&<section aria-label={en?'Exam questions':'시험 문제'}><h3>{attempt.exam.title}</h3>{attempt.submitted&&<p role="status" className="exam-score">{en?'Score':'채점 결과'}: {examScore(attempt.exam,attempt.answers)} / 5 · {examScore(attempt.exam,attempt.answers)*20}{en?' points':'점'}</p>}{attempt.exam.questions.map((q,i)=><article key={i} className="exam-question"><p className="muted">{i+1}. {notes.find(n=>n.id===q.sourceId)?.title??(en?'Saved record':'저장된 기록')}</p><StudyMarkdown>{q.question}</StudyMarkdown><fieldset disabled={attempt.submitted||busy}><legend className="exam-answer-legend">{en?`Question ${i+1} answer`:`${i+1}번 답 선택`}</legend>{q.options.map((option,j)=><label key={j} className="exam-option"><input type="radio" name={`exam-${i}`} checked={attempt.answers[i]===j} onChange={()=>setAttempt(a=>a?{...a,answers:a.answers.map((n,k)=>k===i?j:n)}:a)}/><span><b>{j+1}.</b><StudyMarkdown>{option}</StudyMarkdown></span></label>)}</fieldset><label className="exam-memo">{en?'My notes':'문제 메모'}<textarea rows={3} maxLength={5000} value={attempt.memos[i]} onChange={e=>setAttempt(a=>a?{...a,memos:a.memos.map((m,k)=>k===i?e.target.value:m)}:a)} placeholder={en?'Write your reasoning or questions.':'선택한 이유나 헷갈리는 부분을 적어보세요.'}/></label>{attempt.submitted&&<div className="exam-feedback"><strong>{attempt.answers[i]===q.correctIndex?(en?'Correct':'정답'):(en?'Incorrect':'오답')} · {en?'Answer':'정답'} {q.correctIndex+1}</strong><StudyMarkdown>{q.explanation}</StudyMarkdown></div>}</article>)}{!attempt.submitted&&<><p className="muted">{en?'Answer every question to submit.':'모든 문제의 답을 선택하면 채점할 수 있습니다.'}</p><button type="button" className="button primary" disabled={busy||attempt.answers.some(a=>a===null)} onClick={()=>setAttempt(a=>a?{...a,submitted:true}:a)}>{en?'Submit and grade':'제출하고 채점하기'}</button></>}</section>}</div>;
+ return <><button type="button" className="button primary" disabled={!notes.length||notes.length>3} onClick={()=>{setError('');dialog.current?.showModal();}}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M14 3H5v18h14V8zM14 3v5h5M8 12h8M8 16h5"/></svg>{en?'Generate exam':'시험지 생성'}</button><dialog ref={dialog} className="editor-dialog exam-dialog" onClose={()=>controller.current?.abort()}><div className="dialog-heading"><h2>{en?'Create an exam':'시험지 만들기'}</h2><button type="button" className="close-button" aria-label={en?'Close':'닫기'} onClick={()=>dialog.current?.close()}>×</button></div><div className="exam-editor"><p>{en?'Generate 10 questions from up to 3 notes. Exams, answers and notes are saved to your account.':'선택한 기록을 바탕으로 10문항을 출제합니다. 시험지, 답안, 문제별 메모는 계정에 저장됩니다.'}</p><fieldset disabled={busy}><legend>{en?'Source notes':'출제할 기록'} ({notes.length}/3)</legend><ul className="exam-source-titles">{notes.map(note=><li key={note.id}>{note.title}</li>)}</ul><p className="exam-fixed-model">GPT-6.1 Sol <span>medium</span></p><button type="button" className="button primary" disabled={busy||!notes.length} onClick={()=>void generate()}>{busy?(en?'Generating and saving…':'출제하고 저장하는 중…'):(en?'Generate 10 questions':'시험지 만들기')}</button></fieldset>{error&&<p role="alert">{error}</p>}</div></dialog></>;
 }
-
 export function useExamSelection(account:string|null|undefined){
  const [state,setState]=useState<{account:string;ids:string[]}|null>(null);
  const [error,setError]=useState(false);

@@ -16,7 +16,7 @@ export async function deviceCredential(): Promise<{ token:string; deviceId:strin
   throw new StudySyncError('사이트에서 연결 코드를 발급받아 이 기기를 연결해주세요.',401);
 }
 export async function deviceFetch(resource:string,init:RequestInit={}) {
-  if(!/^(session|profile|devices|api-key|models|chat|summaries\/[0-9a-f-]{36}\/comments)(\?[^#]*)?$/.test(resource))throw new StudySyncError('지원하지 않는 요청입니다.',404);
+  if(!/^(session|profile|devices|api-key|models|chat|exams(?:\/[0-9a-f-]{36})?|summaries\/[0-9a-f-]{36}\/comments)(\?[^#]*)?$/.test(resource))throw new StudySyncError('지원하지 않는 요청입니다.',404);
   const {token}=await deviceCredential();
   return fetch(new URL(`/api/local/${resource}`,syncUrl),{
     ...init,headers:{'Authorization':`Bearer ${token}`,...(init.body?{'Content-Type':'application/json'}:{})},
