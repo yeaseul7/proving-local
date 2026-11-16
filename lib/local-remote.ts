@@ -49,7 +49,7 @@ export async function proxyPublic(request:Request,parts:string[]=[]) {
   try {assertLocal(request,request.method!=='GET');}catch{return NextResponse.json({error:'요청 출처를 확인해주세요.'},{status:403});}
   try {
     const resource=parts.join('/');
-    if(!/^(|visit|profiles(?:\/[a-zA-Z0-9_]{3,20})?|summaries\/[0-9a-f-]{36}(?:\/(?:view|reaction|comments))?)$/.test(resource))throw new StudySyncError('공개 자료를 찾을 수 없습니다.',404);
+    if(!/^(|visit|exams(?:\/[0-9a-f-]{36})?|profiles(?:\/[a-zA-Z0-9_]{3,20})?|summaries\/[0-9a-f-]{36}(?:\/(?:view|reaction|comments))?)$/.test(resource))throw new StudySyncError('공개 자료를 찾을 수 없습니다.',404);
     if(request.method==='POST'&&/^summaries\/[0-9a-f-]{36}\/comments$/.test(resource))return proxyPrivate(request,resource);
     const visitor=visitorFor(request);
     const raw=request.method==='GET'?undefined:await request.text();

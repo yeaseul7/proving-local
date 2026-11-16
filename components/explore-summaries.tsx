@@ -31,11 +31,10 @@ function loadRecords(): Promise<PublicListItem[]> {
   return inflight;
 }
 
-export function ExploreSummaries() {
+export function ExploreSummaries({query}:{query:string}) {
   const { language } = useLanguage();
   const en = language === 'en';
   const [records, setRecords] = useState<PublicListItem[]>(() => cache?.records ?? []);
-  const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(() => !cache);
   const [error, setError] = useState(false);
   const [retry, setRetry] = useState(0);
@@ -65,10 +64,6 @@ export function ExploreSummaries() {
     `${record.title} ${record.subject} ${record.content}`.toLocaleLowerCase().includes(search));
   // 페이지 제목(탐색)이 이미 설명하므로 섹션 제목과 검색 라벨은 화면에 다시 쓰지 않는다.
   return <section className="explore-summaries" aria-label={en ? 'Public study notes' : '공개 공부 기록'}>
-    <label className="explore-search">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-      <input type="search" aria-label={en ? 'Search study notes' : '공부 기록 검색'} value={query} onChange={event => setQuery(event.target.value)} placeholder={en ? 'Search by title, topic or content' : '제목, 주제, 내용으로 검색'} />
-    </label>
     {loading ? <p role="status">{en ? 'Loading study notes…' : '공부 기록을 불러오는 중'}</p>
       : error ? <p role="alert">{en ? 'Could not load study notes.' : '공부 기록을 불러오지 못했습니다.'} <button className="text-button" onClick={() => setRetry(value => value + 1)}>{en ? 'Retry' : '다시 시도'}</button></p>
       : filtered.length ? <div className="explore-profiles">{filtered.map(record =>

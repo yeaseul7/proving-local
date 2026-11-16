@@ -1,5 +1,6 @@
+import {pendingMemoQuestions,parseMemoFeedback,memoFeedbackInstructions} from '@/lib/exam-feedback';
 import { randomUUID } from 'node:crypto';
-import { saveGeneratedExam } from '@/lib/exam-store';
+import { saveGeneratedExam,readOwnExam,saveOwnExamFeedback } from '@/lib/exam-store';
 import { EXAM_MODEL,EXAM_REASONING_EFFORT } from '@/lib/study-exam';
 import { validExamSources, examInstructions, parseExam } from '@/lib/study-exam';
 import { validAssessment, validLearningState, advanceLearning } from '@/lib/study-learning';
@@ -31,15 +32,21 @@ export async function POST(request:Request){
     if (!body || typeof body !== 'object' || Array.isArray(body)) return Response.json({error:'요청 형식을 확인해주세요.'},{status:400});
     if(body.account!==identity.accountKey)return Response.json({error:'로그인 계정이 변경되었습니다. 새로고침해주세요.'},{status:409});
     if(body.summarize!==true&&body.continuation===undefined&&raw.length>150000)return Response.json({error:'대화가 너무 깁니다. 새 공부를 시작해주세요.'},{status:413});
-    const examining = body.exam === true;
+    const feedback=body.examFeedback===true;
+    const examining = !feedback&&body.exam === true;
+    const feedbackAttempt=feedback&&typeof body.examId==='string'?await readOwnExam(identity,body.examId):null;
+    if(feedback&&(!feedbackAttempt||!feedbackAttempt.submitted))return Response.json({error:'제출한 시험지를 확인해주세요.'},{status:400});
+    const memoQuestions=feedbackAttempt?pendingMemoQuestions(feedbackAttempt):[];
+    if(feedback&&!memoQuestions.length)return Response.json({account:identity.accountKey,attempt:feedbackAttempt},{headers:{'Cache-Control':'no-store'}});
     if(examining&&!validExamSources(body.sources))return Response.json({error:'기록을 1~3개 선택해주세요. 각 기록은 30,000자 이하여야 합니다.'},{status:400});
     if(examining&&body.examId!==undefined&&(typeof body.examId!=='string'||!(/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(body.examId))))return Response.json({error:'시험지 식별자를 확인해주세요.'},{status:400});
-    const summarizing = !examining && body.summarize === true;
-    if(examining)body.model=(body.provider==='chatgpt'||typeof body.model==='string'&&body.model.startsWith('plan:'))?`plan:${EXAM_MODEL}`:EXAM_MODEL;
+    const summarizing = !feedback && !examining && body.summarize === true;
+    if(examining||feedback)body.model=(body.provider==='chatgpt'||typeof body.model==='string'&&body.model.startsWith('plan:'))?`plan:${EXAM_MODEL}`:EXAM_MODEL;
     if(typeof body.model!=='string'||body.model.length>120)return Response.json({error:'모델을 확인해주세요.'},{status:400});
     let messages;
     let studyFlow;
-    if (examining) {
+    if(feedback){messages=[{role:'user' as const,content:JSON.stringify(memoQuestions)}];
+    } else if (examining) {
       messages = [{role:'user' as const,content:JSON.stringify(body.sources)}];
     } else if (summarizing) {
       if (!validStoredMessages(body.messages) || !body.messages.length) return Response.json({error:'기록할 대화를 확인해주세요.'},{status:400});
@@ -65,6 +72,12 @@ export async function POST(request:Request){
     if(busy.has(identity.accountKey))return Response.json({error:'앞선 응답이 완료된 뒤 다시 보내주세요.'},{status:429});
     lock=identity.accountKey;busy.add(identity.accountKey);
     const language = body.language === 'en' ? 'en' : 'ko';
+    if(feedback&&feedbackAttempt){
+      const rawFeedback=await respond({model,messages,instructions:memoFeedbackInstructions(language),json:true,maxOutputTokens:12000,reasoningEffort:EXAM_REASONING_EFFORT,timeoutMs:120_000});
+      const result=parseMemoFeedback(rawFeedback,memoQuestions);
+      const attempt=await saveOwnExamFeedback(identity,feedbackAttempt.id,feedbackAttempt.memos,result);
+      return Response.json({account:identity.accountKey,attempt},{headers:{'Cache-Control':'no-store'}});
+    }
     if(examining){
       const rawExam=await respond({model,messages,instructions:examInstructions(language),json:true,maxOutputTokens:16000,reasoningEffort:EXAM_REASONING_EFFORT,timeoutMs:120_000});
       const exam=parseExam(rawExam,body.sources.map((s:{id:string})=>s.id));

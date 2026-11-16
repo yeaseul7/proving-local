@@ -1,9 +1,11 @@
+import type {MemoFeedback} from './exam-feedback.ts';
 export const EXAM_MODEL = 'gpt-6.1-sol';
 export const EXAM_REASONING_EFFORT = 'medium' as const;
 export const EXAM_QUESTION_COUNT = 10;
+export const EXAM_PAGE_SIZE = 10;
 export type ExamSource = {id:string;title:string;content:string};
 export type ExamQuestion = {sourceId:string;question:string;options:string[];correctIndex:number;explanation:string};
-export type StudyExam = {title:string;questions:ExamQuestion[]};
+export type StudyExam = {title:string;questions:ExamQuestion[];memoFeedback?:MemoFeedback[]};
 const text=(v:unknown,max:number):v is string=>typeof v==='string'&&v.trim().length>0&&v.length<=max&&!v.includes('\0');
 export function validExamSources(v:unknown):v is ExamSource[]{
  return Array.isArray(v)&&v.length>=1&&v.length<=3&&new Set(v.map(n=>n?.id)).size===v.length&&v.every(n=>n&&text(n.id,200)&&text(n.title,200)&&text(n.content,30000));
@@ -23,8 +25,11 @@ export function examInstructions(language:'ko'|'en'){
 }
 export function examScore(exam:StudyExam,answers:(number|null)[]){return exam.questions.reduce((score,q,i)=>score+(answers[i]===q.correctIndex?1:0),0);}
 
-export type ExamAttempt = {id:string;exam:StudyExam;sources:ExamSource[];answers:(number|null)[];memos:string[];submitted:boolean;revision:number;createdAt:string;updatedAt:string;model:string;reasoningEffort:string};
-export type ExamListItem = Pick<ExamAttempt,'id'|'submitted'|'createdAt'|'updatedAt'> & {title:string;sourceTitles:string[];score:number};
+export type ExamAttempt = {isPublic?:boolean;id:string;exam:StudyExam;sources:ExamSource[];answers:(number|null)[];memos:string[];submitted:boolean;revision:number;createdAt:string;updatedAt:string;model:string;reasoningEffort:string};
+export type ExamListItem = Pick<ExamAttempt,'id'|'submitted'|'createdAt'|'updatedAt'|'isPublic'> & {title:string;sourceTitles:string[];score:number};
 export function validExamProgress(answers:unknown,memos:unknown,submitted:unknown):boolean {
  return Array.isArray(answers)&&answers.length===EXAM_QUESTION_COUNT&&answers.every(n=>n===null||Number.isInteger(n)&&n>=0&&n<4)&&Array.isArray(memos)&&memos.length===EXAM_QUESTION_COUNT&&memos.every(m=>typeof m==='string'&&m.length<=5000&&!m.includes('\0'))&&typeof submitted==='boolean'&&(!submitted||answers.every(n=>n!==null));
 }
+
+export type PublicExamContent={title:string;questions:{question:string;options:string[]}[]};
+export type PublicExamListItem={id:string;title:string;preview:string;author:string;createdAt:string};
