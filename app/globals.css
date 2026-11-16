@@ -1503,3 +1503,7 @@ img.profile-avatar-large { object-fit: cover; background: var(--color-surface-in
  .notes-result-count { font-size:12px; }
 }
 .exam-paper-column { min-width:0; }
+
+.exam-print-control { display:inline-flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.exam-print-control .button { padding:6px 12px; font-size:12px; }
+.exam-print-control [role=alert] { font-size:12px; color:var(--color-danger); }
