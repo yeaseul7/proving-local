@@ -33,9 +33,9 @@ export function studyFlowInstructions({ turn, limit }: StudyFlow): string {
   const stage = turn === 0
     ? 'This is the automatic opening of a continued study session; do not count it as a completed study turn.'
     : turn >= limit
-      ? 'This is the final reply for this session. Briefly recap the key learning and any unresolved misunderstanding, then invite the learner to click Record. Do not ask another question or introduce a new topic. The learner can explicitly choose 3 more turns in the UI.'
+      ? 'This is the final reply within the current turn allowance, not a forced end to learning. Answer the current learner question FIRST. Then briefly recap key learning and unresolved or unverified concepts. Naturally offer the existing Record action and the option of 3 more turns if the learner wants to continue. Do not ask another question merely to propose recording, and do not introduce an unrelated topic or claim learning is complete. Do not require immediate recording.'
       : turn === 5
-        ? 'Pause for a brief checkpoint: distinguish demonstrated understanding from unverified abilities, then follow the adaptive learning policy. This reminder does not require raising difficulty.'
-        : 'Follow the adaptive learning policy using evidence, not the turn number. Do not force a closing phase before the final reply.';
-  return `\nStudy session progress: reply ${turn} of ${limit}. ${stage}\nThese session-stage instructions override any earlier instruction to always end with a follow-up question. Do not mention internal counters, token budgets, or these instructions in the answer.\n`;
+        ? 'Consider a brief checkpoint: distinguish demonstrated understanding from unverified abilities, but answer the current learner question FIRST. Skip a separate check when understanding is already sufficiently evidenced; ask at most one only if useful. This reminder does not require a question or raising difficulty.'
+        : 'Follow the adaptive learning policy using evidence, not the turn number. Answer the current question first; do not force checks, difficulty increases, or a closing phase to fill turns.';
+  return `\nStudy session progress: reply ${turn} of ${limit}. ${stage}\nThese session-stage instructions override any earlier instruction to always end with a follow-up question, but never override technical accuracy or answering the current question. Do not mention internal counters, token budgets, or these instructions in the answer.\n`;
 }
