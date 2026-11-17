@@ -1,4 +1,6 @@
 'use client';
+import {settingsCache} from '@/lib/settings-cache';
+import {commentsCache} from '@/lib/comments-cache';
 import {clearExamCache} from '@/lib/exam-cache';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
@@ -34,7 +36,7 @@ export function AccountSessionProvider({children}:{children:ReactNode}) {
         const next:BrowserSession=await response.json();
         if(next.account!==null&&typeof next.account!=='string')throw new Error('로그인 응답을 확인하지 못했습니다.');
         if(requestGeneration!==generation.current)return loadSession();
-        if(current.current&&current.current.account!==next.account){clearExamCache();setIdentityVersion(value=>value+1);}
+        if(current.current&&current.current.account!==next.account){clearExamCache();settingsCache.clear();commentsCache.clear();setIdentityVersion(value=>value+1);}
         // 내용이 같으면 기존 객체를 그대로 둬, 창 포커스마다 화면 전체가 다시 그려지지 않게 한다.
         if(current.current&&JSON.stringify(current.current)===JSON.stringify(next)){setError('');return current.current;}
         current.current=next;setSession(next);setError('');return next;
@@ -48,7 +50,7 @@ export function AccountSessionProvider({children}:{children:ReactNode}) {
     return work;
   },[]);
   const clearSession=useCallback(()=>{
-    generation.current++;pending.current=null;clearExamCache();
+    generation.current++;pending.current=null;clearExamCache();settingsCache.clear();commentsCache.clear();
     const next={account:null,provider:current.current?.provider};
     current.current=next;setSession(next);setError('');setIdentityVersion(value=>value+1);
   },[]);
@@ -59,6 +61,7 @@ export function AccountSessionProvider({children}:{children:ReactNode}) {
     if(previous.name===name&&(previous.avatar??null)===profile.avatar)return;
     // A session response started before this save must not restore old data.
     generation.current++;pending.current=null;
+    commentsCache.clear();
     const next={...previous,name,avatar:profile.avatar};
     current.current=next;setSession(next);
   },[]);

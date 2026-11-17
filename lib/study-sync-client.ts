@@ -1,3 +1,4 @@
+import {commentsCache} from './comments-cache';
 import { summaryPath } from '@/lib/summary-path';
 import type { Notebook } from './notebooks';
 import type { StudyNote } from './study';
@@ -30,5 +31,6 @@ export async function writeStudy(account: string, command:
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || '서버에 저장하지 못했습니다.');
+  if(['unpublish-record','delete-record','edit-record'].includes(command.action))commentsCache.clear();
   return data;
 }

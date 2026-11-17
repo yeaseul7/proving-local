@@ -1,4 +1,5 @@
 'use client';
+import { LoginLink } from '@/components/login-modal';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { clearAccountBrowserData } from '@/lib/account-browser-data';
@@ -57,13 +58,13 @@ export default function Settings() {
     {(error||sessionError)&&<p role="alert">{error||sessionError} {sessionError&&<button className="text-button" onClick={()=>void getSession(true).catch(()=>{})}>로그인 확인 다시 시도</button>}</p>}
     {notice&&<p role="status">{notice}</p>}
     {!session ? !sessionError&&<p>로그인 상태 확인 중</p> : !session.account
-      ? <a className="button primary" href="/auth/login">로그인</a>
+      ? <LoginLink className="button primary" href="/auth/login">로그인</LoginLink>
       : <>
         <section className="settings-section" aria-labelledby="settings-profile"><h2 id="settings-profile">프로필</h2>
           <ProfileEditor key={session.account} accountName={session.name} showSharingSettings onChanged={()=>window.dispatchEvent(new Event('proving-profile-updated'))}/>
         </section>
         <section className="settings-section" aria-labelledby="settings-gpt"><h2 id="settings-gpt">GPT API 키 관리</h2>
-          <ApiKeySettings onChanged={()=>void getSession(true).catch(()=>{})}/>
+          <ApiKeySettings key={session.account} onChanged={()=>void getSession(true).catch(()=>{})}/>
         </section>
         {session.provider==='supabase'&&<ConnectedDevices key={session.account}/> }
         <div className="settings-account-actions">

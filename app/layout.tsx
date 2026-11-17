@@ -1,3 +1,5 @@
+import { LoginModalProvider } from '@/components/login-modal';
+import { runtimeMode } from '@/lib/runtime-mode';
 import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import 'katex/dist/katex.min.css';
@@ -43,7 +45,7 @@ export default function RootLayout({ children }: Readonly<{children: React.React
     {/* A plain head script runs before first paint; next/script renders a client <script> that React 19 warns about. */}
     <head><script id="proving-appearance" dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
     <body>
-      <LanguageProvider><AccountSessionProvider>{children}</AccountSessionProvider></LanguageProvider>
+      <LanguageProvider><AccountSessionProvider><LoginModalProvider enabled={runtimeMode().auth==='supabase'&&runtimeMode().store==='db'}>{children}</LoginModalProvider></AccountSessionProvider></LanguageProvider>
     </body>
   </html>;
 }

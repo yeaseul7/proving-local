@@ -17,7 +17,7 @@ export default function PrivacyPage() {
       <table>
         <thead><tr><th>구분</th><th>항목</th><th>목적</th></tr></thead>
         <tbody>
-          <tr><td>로그인 (필수)</td><td>GitHub 계정 식별자, 이름 또는 사용자명, 이메일</td><td>회원 식별, 로그인 유지, 사용자별 기록 접근 제어</td></tr>
+          <tr><td>로그인 (필수)</td><td>GitHub 또는 카카오 계정 식별자, 이름 또는 사용자명, 제공에 동의한 이메일</td><td>회원 식별, 로그인 유지, 사용자별 기록 접근 제어</td></tr>
           <tr><td>공부 기록 (필수)</td><td>노트 제목, 질문과 AI 답변, 작성 중인 초안, 요약, 공부 날짜</td><td>공부 대화 제공, 학습 기록 저장·조회·내보내기</td></tr>
           <tr><td>프로필 (선택)</td><td>표시 이름, 프로필 사진, 설명(500자), 공개 여부</td><td>내 프로필 표시, 공개를 선택한 경우 공개 프로필 제공</td></tr>
           <tr><td>OpenAI API 키 (선택)</td><td>이용자가 입력한 API 키(암호화 저장), 마지막 네 자리</td><td>이용자 본인의 키로 GPT 공부 대화·요약 실행</td></tr>
@@ -45,7 +45,8 @@ export default function PrivacyPage() {
         <tbody>
           <tr><td>Supabase Inc.</td><td>로그인 처리, 데이터베이스 저장</td><td>미국 등 데이터베이스 리전</td></tr>
           <tr><td>Vercel Inc.</td><td>웹사이트 호스팅, 요청 처리</td><td>미국 등</td></tr>
-          <tr><td>GitHub, Inc.</td><td>로그인 인증</td><td>미국</td></tr>
+          <tr><td>GitHub, Inc.</td><td>GitHub 로그인 인증</td><td>미국</td></tr>
+          <tr><td>카카오</td><td>카카오 로그인 인증</td><td>대한민국</td></tr>
           <tr><td>OpenAI</td><td>이용자 본인 API 키로 요청한 질문·대화 문맥 처리</td><td>미국</td></tr>
         </tbody>
       </table>

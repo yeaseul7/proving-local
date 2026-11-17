@@ -1,10 +1,13 @@
 'use client';
-import { useEffect, useState, type FormEvent } from 'react';
+import { LoginLink } from '@/components/login-modal';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useAccountSession } from './account-session';
+import {commentsCache,commentsKey,readComments} from '@/lib/comments-cache';
 import type { RecordComment } from '@/lib/record-comments';
 
 export function RecordComments({publicId,language='ko'}:{publicId:string;language?:'ko'|'en'}) {
   const {session,getSession}=useAccountSession();
+  const readVersion=useRef(0);
   const [comments,setComments]=useState<RecordComment[]>([]);
   const [content,setContent]=useState('');
   const [busy,setBusy]=useState(false);
@@ -15,13 +18,10 @@ export function RecordComments({publicId,language='ko'}:{publicId:string;languag
   const canWrite=Boolean(session?.account&&session.provider==='supabase');
   useEffect(()=>{void getSession().catch(()=>{});},[getSession]);
   useEffect(()=>{
-    const controller=new AbortController();setLoading(true);setComments([]);setError('');setContent('');setNotice('');
-    fetch(`/api/public/summaries/${publicId}/comments`,{signal:controller.signal,cache:'no-store'})
-      .then(async response=>{if(!response.ok)throw new Error();const data=await response.json();if(!controller.signal.aborted)setComments(Array.isArray(data.comments)?data.comments:[]);})
-      .catch(()=>{if(!controller.signal.aborted)setError(en?'Could not load comments.':'댓글을 불러오지 못했어요.');})
-      .finally(()=>{if(!controller.signal.aborted)setLoading(false);});
-    return()=>controller.abort();
-  },[publicId,en]);
+    let active=true;const version=++readVersion.current;const cached=commentsCache.peek<RecordComment[]>(commentsKey(publicId));setLoading(!cached);setComments(cached??[]);setError('');setContent('');setNotice('');
+    readComments(publicId).then(comments=>{if(active&&readVersion.current===version)setComments(comments);}).catch(()=>{if(active&&readVersion.current===version)setError('load-comments');}).finally(()=>{if(active)setLoading(false);});
+    return()=>{active=false;};
+  },[publicId]);
   async function submit(event:FormEvent){
     event.preventDefault();if(busy||!canWrite||!content.trim())return;
     setBusy(true);setError('');setNotice('');
@@ -29,7 +29,10 @@ export function RecordComments({publicId,language='ko'}:{publicId:string;languag
       const response=await fetch(`/api/public/summaries/${publicId}/comments`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content}),signal:AbortSignal.timeout(15000)});
       const data=await response.json();
       if(!response.ok)throw new Error(en?'Could not post your comment. Please try again.':data.error);
-      setComments(Array.isArray(data.comments)?data.comments:[]);setContent('');setNotice(en?'Comment posted.':'댓글을 남겼어요.');
+      if(!Array.isArray(data.comments))throw new Error('댓글 응답을 확인하지 못했습니다.');
+      readVersion.current++;
+      commentsCache.put(commentsKey(publicId),data.comments);
+      setComments(data.comments);setContent('');setNotice(en?'Comment posted.':'댓글을 남겼어요.');
     } catch(error){setError(error instanceof Error?error.message:(en?'Could not post comment.':'댓글을 저장하지 못했어요.'));}
     finally{setBusy(false);}
   }
@@ -38,8 +41,8 @@ export function RecordComments({publicId,language='ko'}:{publicId:string;languag
     {loading&&<p role="status">{en?'Loading…':'불러오는 중…'}</p>}
     <ul>{comments.map(comment=><li key={comment.id}><div className="comment-meta"><strong>{comment.name}</strong><time dateTime={comment.createdAt}>{new Date(comment.createdAt).toLocaleDateString(en?'en-US':'ko-KR')}</time></div><p>{comment.content}</p></li>)}</ul>
     {!loading&&comments.length===0&&!error&&<p className="comment-empty">{en?'Be the first to leave feedback.':'첫 피드백을 남겨보세요.'}</p>}
-    {canWrite?<form className="comment-composer" onSubmit={submit}><input aria-label={en?'Comment':'댓글 내용'} placeholder={en?'Leave feedback on this note':'내용에 대한 피드백을 남겨주세요'} value={content} maxLength={2000} disabled={busy} onChange={event=>setContent(event.target.value)} onKeyDown={event=>{if(event.key==='Enter'&&event.nativeEvent.isComposing)event.preventDefault();}}/><button type="submit" disabled={busy||!content.trim()} aria-label={en?'Post comment':'댓글 전송'} title={en?'Enter to send':'Enter로 전송'}>{busy?'…':'↑'}</button></form>:<a className="comment-login text-button" href="/auth/login">{en?'Log in with GitHub to comment':'GitHub 로그인 후 댓글 남기기'}</a>}
-    {error&&<p className="comment-error" role="alert">{error}</p>}
+    {canWrite?<form className="comment-composer" onSubmit={submit}><input aria-label={en?'Comment':'댓글 내용'} placeholder={en?'Leave feedback on this note':'내용에 대한 피드백을 남겨주세요'} value={content} maxLength={2000} disabled={busy} onChange={event=>setContent(event.target.value)} onKeyDown={event=>{if(event.key==='Enter'&&event.nativeEvent.isComposing)event.preventDefault();}}/><button type="submit" disabled={busy||!content.trim()} aria-label={en?'Post comment':'댓글 전송'} title={en?'Enter to send':'Enter로 전송'}>{busy?'…':'↑'}</button></form>:<LoginLink className="comment-login text-button" href="/auth/login">{en?'Log in to comment':'로그인 후 댓글 남기기'}</LoginLink>}
+    {error&&<p className="comment-error" role="alert">{error==='load-comments'?(en?'Could not load comments.':'댓글을 불러오지 못했어요.'):error}</p>}
     {notice&&<p role="status">{notice}</p>}
   </section>;
 }

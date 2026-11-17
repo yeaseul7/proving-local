@@ -1,6 +1,7 @@
 'use client';
 import {useEffect,useState} from 'react';
 import {useLanguage} from './language-provider';
+import {ExamPrintButton} from './exam-print-button';
 import {StudyMarkdown} from './study-markdown';
 import {introDescription} from '@/lib/profile';
 import type {PublicExamContent,PublicExamListItem} from '@/lib/study-exam';
@@ -32,10 +33,10 @@ function PublicExamPreview({id,onBack}:{id:string;onBack:()=>void}){
   fetch(`/api/public/exams/${id}`,{cache:'no-store',signal:controller.signal}).then(async response=>{const data=await response.json();if(!response.ok)throw new Error(response.status===404?(en?'This exam is private or no longer exists.':'비공개로 전환되었거나 삭제된 시험지입니다.'):(en?'Could not load exam.':'시험지를 불러오지 못했습니다.'));if(!data.exam?.questions)throw new Error('시험지 형식을 확인하지 못했습니다.');if(active)setExam(data.exam);}).catch(error=>{if(active)setError(error.message);});
   return()=>{active=false;controller.abort();};
  },[id,retry,en]);
- return <section className="public-exam-preview"><button type="button" className="text-button" onClick={onBack}>← {en?'Public exams':'공개 시험지 목록'}</button>
-  {error?<p role="alert">{error} <button type="button" className="text-button" onClick={()=>setRetry(n=>n+1)}>{en?'Retry':'다시 시도'}</button></p>:!exam?<p role="status">{en?'Loading exam…':'시험지를 불러오는 중'}</p>:<section className="exam-paper" aria-label={en?'Exam preview':'시험지 미리보기'}>
+ return <section className="public-exam-preview"><div className="public-exam-toolbar"><button type="button" className="text-button" onClick={onBack}>← {en?'Public exams':'공개 시험지 목록'}</button>{exam&&!error&&<ExamPrintButton exam={exam} english={en} publicDownload/>}</div>
+  {error?<p role="alert">{error} <button type="button" className="text-button" onClick={()=>setRetry(n=>n+1)}>{en?'Retry':'다시 시도'}</button></p>:!exam?<p role="status">{en?'Loading exam…':'시험지를 불러오는 중'}</p>:<><section className="exam-paper" aria-label={en?'Exam preview':'시험지 미리보기'}>
    <header className="exam-paper-heading"><h2>{exam.title}</h2><div className="exam-paper-info"><span>{en?'Public exam · 10 questions':'공개 시험지 · 10문항'}</span></div></header>
    <div className="exam-paper-questions">{[0,5].map(start=><div className="exam-paper-column" key={start}>{exam.questions.slice(start,start+5).map((q,i)=><article className="exam-question" key={i}><div className="exam-question-heading"><span className="exam-question-number">{String(start+i+1).padStart(2,'0')}</span></div><StudyMarkdown>{q.question}</StudyMarkdown>{q.options.map((option,j)=><div className="exam-option" key={j}><span className="exam-option-number">{['①','②','③','④'][j]}</span><StudyMarkdown>{option}</StudyMarkdown></div>)}</article>)}</div>)}</div>
-  </section>}
+  </section></>}
  </section>;
 }
